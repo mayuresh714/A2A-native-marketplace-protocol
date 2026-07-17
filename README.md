@@ -24,4 +24,12 @@ See [`docs/design.md`](docs/design.md) for the full design doc: problem
 statement, prior-art comparison, protocol layering, message schemas, and
 open caveats.
 
+Ride-sharing is the motivating example, not the ceiling. See
+[`docs/industries/`](docs/industries/) for five other industries worked
+through in the same detail (home services, food & dining, freight &
+logistics, home healthcare, event services), each testing a different
+facet of the protocol — urgent vs. scheduled matching, time-slot vs.
+vehicle capacity, provider-side vs. consumer-side pooling, and how far
+agent autonomy should extend by default.
+
 **Status:** early design draft, no implementation yet.
