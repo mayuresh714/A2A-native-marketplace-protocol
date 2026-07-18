@@ -32,4 +32,14 @@ facet of the protocol — urgent vs. scheduled matching, time-slot vs.
 vehicle capacity, provider-side vs. consumer-side pooling, and how far
 agent autonomy should extend by default.
 
+See [`docs/technical-deep-dive/`](docs/technical-deep-dive/) for the
+engineering and economics questions underneath all of the above: matching
+architecture at real M-provider × N-consumer scale, the mechanics of
+consumer-agent coalition negotiation, how provider isolation is actually
+enforced, which auction/bargaining mechanism price discovery uses and why,
+an honest assessment of what (if anything) is defensible about an *open*
+protocol, the toughest unresolved practical risks (including agent-security
+threats like prompt injection between untrusted agents), and whether a
+≤2%-of-transaction-value operating cost is realistically achievable.
+
 **Status:** early design draft, no implementation yet.
