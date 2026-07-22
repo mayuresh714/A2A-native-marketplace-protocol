@@ -42,4 +42,15 @@ protocol, the toughest unresolved practical risks (including agent-security
 threats like prompt injection between untrusted agents), and whether a
 ≤2%-of-transaction-value operating cost is realistically achievable.
 
+See [`docs/core-model/`](docs/core-model/) for the industry-agnostic
+core: one `Agent` entity (not separate consumer/provider types — "demand"
+vs. "supply" is a *stance*, not a kind of agent), plus 13 other kernel
+entities (`Intent`, `Offer`, `Negotiation`, `Coalition`, `Mandate`,
+`Commitment`, `Fulfillment`, `Attestation`, `Market`, `ClearingMechanism`,
+`ServiceCategory`, ...) and exactly one extension point
+(`ServiceCategory`) that every vertical — travel included — plugs into as
+registered data, never as a protocol change. This is the generalized
+object model the travel-specific and industry-specific docs above are
+each an instance of.
+
 **Status:** early design draft, no implementation yet.
