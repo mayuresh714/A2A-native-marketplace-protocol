@@ -53,4 +53,16 @@ registered data, never as a protocol change. This is the generalized
 object model the travel-specific and industry-specific docs above are
 each an instance of.
 
+See [`docs/business-strategy/`](docs/business-strategy/) for whether
+there's an actual business here: an honest look at when an individual
+provider's agent can (and can't) compete with an incumbent platform —
+Uber's on-demand dispatch and BookMyShow's fixed-inventory ticketing turn
+out to be different competitive situations, not one — a scoring framework
+for where this protocol fits well vs. poorly, who the paying customer
+should actually be (infrastructure for providers and assistant platforms,
+not a competing consumer app), a phased go-to-market for reaching scale
+without spreading liquidity too thin, and a catalog of unresolved business
+questions (governance, incumbent-copy risk, insurance, adoption
+psychology) flagged rather than answered.
+
 **Status:** early design draft, no implementation yet.
