@@ -13,8 +13,9 @@ BlaBlaCar, and whatever else already occupies a given vertical.
 | 3 | [`03-business-model-and-customers.md`](03-business-model-and-customers.md) | What is the actual product, who pays, and — the sharper question — which customer should this project deliberately create first: the provider, the consumer, or the assistant platform sitting between them? |
 | 4 | [`04-scaling-to-billions-gtm-roadmap.md`](04-scaling-to-billions-gtm-roadmap.md) | "Billions of agents" from a go-to-market angle, not a compute angle — the technical sharding in `../technical-deep-dive/01` makes scale computationally cheap, but liquidity and trust don't scale that way; this lays out the actual sequencing. |
 | 5 | [`05-open-business-issues.md`](05-open-business-issues.md) | A consolidated catalog of unresolved business questions — governance, incumbent-copy risk, adoption psychology, insurance, first-market choice — flagged rather than answered, since several genuinely don't have answers yet. |
+| 6 | [`06-positioning-first-principles.md`](06-positioning-first-principles.md) | **The positioning answer — read this to resolve "who actually buys this."** Rebuilds the positioning from first principles: does Uber buy it (no — incumbent to route around), do we build our own distribution (supply yes, consumer no), do we sell to LLM labs (no — they're a free distribution partner via the open protocol, not a customer). Lands on one crisp position and supersedes the ambiguous parts of `03`. |
 
-## The one honest framing to hold onto across all five
+## The one honest framing to hold onto across all six
 
 This protocol is not a better Uber. Applying it to Uber's actual
 business (on-demand, hyper-local, low-negotiation-value city dispatch) is
@@ -27,3 +28,11 @@ matching efficiently — fragmented, negotiable, currently-badly-served
 markets — and weakest wherever one already has. Confusing the two is the
 single most likely way to waste this project's early effort on the wrong
 fight.
+
+And the positioning, in one line (`06`): **we own two layers — supply
+liquidity and neutral clearing/trust — and rent or open-source everything
+else.** Consumer distribution is rented from the LLM labs via an open
+protocol (not fought for), Uber is an incumbent to route around (not a
+customer), and the money is a thin interchange-style fee borne by the
+supply side. It's a slow, Visa-shaped trust-and-liquidity business, not a
+fast platform land grab.

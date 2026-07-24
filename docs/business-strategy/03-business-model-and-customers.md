@@ -1,5 +1,15 @@
 # Business model and customers: what are we actually building, for whom
 
+> **Read [`06-positioning-first-principles.md`](06-positioning-first-principles.md)
+> first.** This doc blurred three distinct businesses together (neutral
+> clearinghouse operator, Stripe-for-providers SaaS, and selling an
+> integration to LLM labs) without resolving which is primary, who owns
+> consumer distribution, or whether an incumbent like Uber is a customer.
+> `06` reworks the positioning from first principles and supersedes this
+> doc wherever they differ; the sections below remain useful for the
+> supply-first bootstrapping logic and the revenue-model detail, read in
+> light of `06`.
+
 "How do we propose this model" and "what customers do we want to create"
 are really one question: **who is the paying/adopting customer, and what
 exactly are we selling them** — and the answer has to be consistent with
