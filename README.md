@@ -65,4 +65,19 @@ without spreading liquidity too thin, and a catalog of unresolved business
 questions (governance, incumbent-copy risk, insurance, adoption
 psychology) flagged rather than answered.
 
+See [`docs/platform-architecture/`](docs/platform-architecture/) for the
+protocol-as-deployable-substrate model: how any distribution platform
+(Uber, OLX, WhatsApp, Amazon) can self-host its *own* agentic marketplace
+from an open-source core and optionally federate with others. Covers the
+ports-and-adapters layering that makes it plug-and-play on your own cloud
+(stable core spec vs. swappable storage/payment/identity/clearing
+adapters), the Network-as-a-Service deployment spectrum (managed
+multi-tenant ↔ dedicated ↔ fully self-hosted, with a control-plane/
+data-plane split), federation into a network-of-networks (portable
+DID identity, verifiable-credential reputation, DNS-like cross-network
+discovery, interbank-style cross-network settlement), and the open-source
+licensing/governance choices (open-core, Apache-2.0 for the protocol,
+foundation governance, conformance certification as the anti-fragmentation
+lever).
+
 **Status:** early design draft, no implementation yet.
