@@ -94,4 +94,13 @@ conclusions: provider-to-provider collaboration is now disabled by default
 (anti-cartel), and ranking belongs to the network operator, never the
 protocol.
 
-**Status:** design frozen for v0; first implementation about to begin.
+**Reference implementation:** [`python/`](python/) — an open, business-neutral
+Python package (`a2a-marketplace`, Apache-2.0, **zero runtime dependencies**)
+implementing the v0 engine: partition + FIFO queue → solo-first match →
+consumer coalition on failure → commitment + escrow → dual-approval + evidence
+→ settlement. Ports-and-adapters throughout, so an operator plugs in their own
+storage, ranking, escrow, and identity without forking the core; a new
+marketplace vertical is a new `Category`, not an engine change. Runs out of the
+box (`python examples/demo_intercity.py`), tests green.
+
+**Status:** v0 spec frozen; reference Python library running (alpha).

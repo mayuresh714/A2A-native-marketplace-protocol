@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "a2a-marketplace"
+version = "0.1.0"
+description = "Open, business-neutral protocol implementation for agent-mediated marketplaces (matching, negotiation, coalitions, escrowed settlement)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+keywords = ["agents", "marketplace", "protocol", "a2a", "matching", "negotiation"]
+authors = [{ name = "A2A-native-marketplace-protocol contributors" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Typing :: Typed",
+]
+# Zero runtime dependencies — stdlib only. This is deliberate: the core must
+# be trivial to adopt and embed anywhere (docs/platform-architecture).
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.4"]
+
+[project.urls]
+Homepage = "https://github.com/mayuresh714/a2a-native-marketplace-protocol"
+Source = "https://github.com/mayuresh714/a2a-native-marketplace-protocol"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/a2a_marketplace"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
