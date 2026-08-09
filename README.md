@@ -80,4 +80,18 @@ licensing/governance choices (open-core, Apache-2.0 for the protocol,
 foundation governance, conformance certification as the anti-fragmentation
 lever).
 
-**Status:** early design draft, no implementation yet.
+**→ Start here for the authoritative, buildable design:**
+[`docs/spec/`](docs/spec/) consolidates everything above into one frozen
+picture — an **OS for agent-mediated marketplaces** (serving humans *and*
+agents, pluggable into any distribution platform). It formalizes ten
+founding design principles, walks the **complete end-to-end lifecycle** of
+a transaction (grouping → FIFO queue → solo-first match → consumer
+collaboration on failure → negotiation → commitment → escrow → dual
+approval + evidence verification → settlement), lays out the four-layer
+responsibility model (**protocol / operator / governance / security &
+fraud**), and freezes the **v0 build scope**. It also amends two earlier
+conclusions: provider-to-provider collaboration is now disabled by default
+(anti-cartel), and ranking belongs to the network operator, never the
+protocol.
+
+**Status:** design frozen for v0; first implementation about to begin.

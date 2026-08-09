@@ -76,10 +76,10 @@ Replaces `TripIntent` and every vertical-specific intent object in
 | `intent_id` | Identifier |
 | `issuer_ref` | The `Agent` (in `demand` stance) |
 | `category_ref` | Which `ServiceCategory` this intent belongs to |
-| `market_key` | The dimensions used for shard placement (`../technical-deep-dive/01`) — category-defined, not hardcoded (e.g. corridor+time for travel, skill+geography+time for home-healthcare) |
-| `constraints` | Core constraints common to all categories: time window, budget ceiling, quantity |
-| `category_ext` | Category-specific fields (route waypoints, dietary flags, urgency tier, credential requirements — never in the core schema, see `04-schema.md`) |
-| `coalition_opt_in` | Whether this intent may join a `Coalition` |
+| `market_key` (**grouping keys**) | The coarse, shared, category-defined dimensions used for partition/shard placement (`../technical-deep-dive/01`) — e.g. source+destination+time-bucket for travel. **Per `../spec/01-principles-and-lifecycle.md` §P3: nothing participant-specific may ever be a grouping key** — grouping keys must stay coarse and shared so a matchable pool actually forms. |
+| `constraints` | Hard requirements filtered *within* a pool (must-satisfy): time window, budget ceiling, quantity. Not grouping keys. |
+| `category_ext` (**preferences + category fields**) | Category-specific fields and soft **preferences** (route waypoints, dietary flags, comfort prefs, urgency tier) — applied at *ranking* and to trigger collaboration on failure (§P5), never in the core schema, never a grouping key. See `04-schema.md`. |
+| `coalition_opt_in` | Whether this intent may join a `Coalition` (demand-side only by default, §P1) |
 | `mandate_ref` | The `Mandate` authorizing this agent to act on it |
 | `expiry` | When this intent lapses if unmatched |
 
@@ -119,10 +119,21 @@ actually governs this category/shard.
 ## 7. `Coalition`
 
 A generalized, ephemeral-by-default grouping of same-stance `Agent`s that
-negotiate jointly. Symmetric by construction — a `Coalition` can form on
-the `demand` side (travel/food consumer pooling) or the `supply` side
-(event-vendor bundling, freight two-truck load-splitting) using the exact
-same object, just tagged with which stance formed it.
+negotiate jointly.
+
+> **Amended by `../spec/01-principles-and-lifecycle.md` §P1
+> (asymmetric by default).** The `Coalition` object is structurally the
+> same for either stance, but the *policy* is not symmetric: **`stance =
+> demand` (consumer pooling) is a first-class, always-available
+> capability, while `stance = supply` (provider bundling) is disabled by
+> default** and only ever enabled as a disclosed, governance-gated
+> exception per category. Provider-to-provider collaboration is the exact
+> structure a cartel needs (`../design.md` §7), so the protocol forbids it
+> by default rather than detecting it after the fact. The event-vendor and
+> freight supply-bundling cases in `../industries/` are therefore governed
+> *exceptions*, not the default. Treat any `stance = supply` coalition as
+> requiring explicit governance approval (`../spec/02-layers-governance-
+> security.md` Layer C).
 
 | Field | Meaning |
 |---|---|
