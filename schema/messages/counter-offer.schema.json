@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/messages/counter-offer.schema.json",
+  "title": "CounterOffer (v0)",
+  "description": "A bounded bilateral negotiation move (docs/spec/01 §P6 default mode; auctions are out of v0). Either side may adjust price and/or departure. round must stay within the negotiation's max_rounds.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "counter_offer" },
+    "counter_offer_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "offer_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "in_reply_to": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid", "description": "The Intent, Coalition, Offer, or prior CounterOffer this responds to." },
+    "round": { "type": "integer", "minimum": 1 },
+    "proposed_price": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+    "proposed_departure": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+  },
+  "required": ["type", "counter_offer_id", "offer_ref", "in_reply_to", "round"],
+  "additionalProperties": false
+}

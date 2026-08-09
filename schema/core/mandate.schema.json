@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/mandate.schema.json",
+  "title": "Mandate (v0)",
+  "description": "The human-to-agent authorization boundary (AP2-derived, docs/core-model/01 §8). An agent may never commit beyond its mandate scope; this is enforced in code, not in LLM reasoning (docs/spec/02 Layer D).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "mandate" },
+    "mandate_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "principal_ref": { "type": "string", "description": "The authorizing Principal." },
+    "holder_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "category_ref": { "type": "string" },
+        "budget_ceiling": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+        "region": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/region" },
+        "valid_until": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+      },
+      "required": ["category_ref", "budget_ceiling"],
+      "additionalProperties": false
+    },
+    "autonomy_level": {
+      "enum": ["require_confirmation", "auto_commit_within_scope"],
+      "description": "'require_confirmation' is the fully-human-in-loop mode (a human is just an agent pinned to this). A category's governance floor may forbid 'auto_commit_within_scope' (docs/core-model/02 §5)."
+    },
+    "signature": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/signature" }
+  },
+  "required": ["type", "mandate_id", "principal_ref", "holder_ref", "scope", "autonomy_level", "signature"],
+  "additionalProperties": false
+}

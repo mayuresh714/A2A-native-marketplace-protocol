@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/agent.schema.json",
+  "title": "Agent (v0)",
+  "description": "The single participant type. 'demand' vs 'supply' is a stance taken per negotiation, not a kind of agent (docs/core-model/01 §1). A human is an Agent whose mandate autonomy_level is 'require_confirmation' (docs/spec/README).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "agent" },
+    "agent_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "principal_ref": {
+      "type": "string",
+      "description": "The human/org this agent acts for. Distinct from the agent because payer/authorizer/beneficiary may differ (docs/core-model/01 §2)."
+    },
+    "profile": {
+      "type": "object",
+      "description": "Capability declaration (docs/core-model/01 §3) — makes the agent's behavior legible before any negotiation.",
+      "properties": {
+        "service_categories": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Categories this agent can transact in. v0: ['intercity_travel'].",
+          "minItems": 1
+        },
+        "stances": {
+          "type": "object",
+          "description": "Which stance(s) the agent takes per category.",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "enum": ["demand", "supply"] },
+            "minItems": 1
+          }
+        },
+        "coalition_capable": {
+          "type": "object",
+          "description": "Per-category coalition capability. Per docs/spec/01 §P1, supply-side coalition is disabled by default and a compliant v0 agent MUST NOT set true for a supply stance.",
+          "additionalProperties": { "type": "boolean" }
+        }
+      },
+      "required": ["service_categories", "stances"],
+      "additionalProperties": false
+    },
+    "attestation_refs": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+      "description": "Verifiable claims backing capability declarations (license, identity)."
+    },
+    "reputation_summary": {
+      "type": "object",
+      "description": "Aggregate reputation, itself an Attestation. Portable and provenance-carrying (docs/platform-architecture/03 §4).",
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 5 },
+        "rated_transactions": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["type", "agent_id", "principal_ref", "profile"],
+  "additionalProperties": false
+}

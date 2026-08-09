@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/common.schema.json",
+  "title": "Common definitions (v0)",
+  "description": "Shared primitive types referenced by every v0 entity and message. See docs/spec/ for the design these encode.",
+  "$defs": {
+    "did": {
+      "type": "string",
+      "description": "Decentralized Identifier. Identity is network-independent (docs/platform-architecture/03 §3), which is why it lives in the stable core.",
+      "pattern": "^did:[a-z0-9]+:.+$",
+      "examples": ["did:web:driver-app.example.com:agent:789", "did:key:z6Mk..."]
+    },
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 / ISO 8601 instant, e.g. 2026-07-18T15:30:00+05:30"
+    },
+    "money": {
+      "type": "object",
+      "description": "An amount in minor units (paise, cents) to avoid floating-point money.",
+      "properties": {
+        "amount_minor": { "type": "integer", "minimum": 0, "description": "Amount in the smallest currency unit (e.g. paise for INR)." },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$", "description": "ISO 4217 code, e.g. INR." }
+      },
+      "required": ["amount_minor", "currency"],
+      "additionalProperties": false
+    },
+    "region": {
+      "type": "string",
+      "description": "A coarse geographic identifier used as (part of) a grouping key. Coarse by design (docs/spec/01 §P3): a city/region name or a geohash/H3 cell prefix, never a precise point.",
+      "minLength": 1
+    },
+    "geoPoint": {
+      "type": "object",
+      "description": "A precise point. NEVER a grouping key (too fine); used only inside constraints/preferences/evidence.",
+      "properties": {
+        "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "lng": { "type": "number", "minimum": -180, "maximum": 180 }
+      },
+      "required": ["lat", "lng"],
+      "additionalProperties": false
+    },
+    "timeWindow": {
+      "type": "object",
+      "properties": {
+        "earliest": { "$ref": "#/$defs/timestamp" },
+        "latest": { "$ref": "#/$defs/timestamp" }
+      },
+      "required": ["earliest", "latest"],
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "object",
+      "description": "A detached signature over the containing object, by the acting agent's key. Makes commitments/mandates non-repudiable (docs/spec/01 §P8 audit trail).",
+      "properties": {
+        "alg": { "type": "string", "examples": ["EdDSA", "ES256"] },
+        "key_id": { "type": "string", "description": "The DID key reference that produced this signature." },
+        "value": { "type": "string", "description": "Base64url-encoded signature." }
+      },
+      "required": ["alg", "key_id", "value"],
+      "additionalProperties": false
+    }
+  }
+}

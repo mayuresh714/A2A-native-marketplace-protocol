@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/categories/intercity-travel/offer-ext.schema.json",
+  "title": "intercity_travel Offer category fields (v0)",
+  "description": "Validated against Offer.category_ext. A ride is advertised as an ORDERED LIST OF WAYPOINTS, not one origin-destination pair — this is what makes pooling to intermediate stops possible (docs/design.md §5).",
+  "type": "object",
+  "properties": {
+    "route": {
+      "type": "array",
+      "minItems": 2,
+      "description": "Ordered stops from origin to final destination, each with an ETA and (from the first onward) a per-seat price to reach that stop.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stop": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/region" },
+          "eta": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+          "price_per_seat": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" }
+        },
+        "required": ["stop", "eta"],
+        "additionalProperties": false
+      }
+    },
+    "vehicle": {
+      "type": "object",
+      "properties": {
+        "kind": { "enum": ["sedan", "suv", "van", "bus"] },
+        "verified": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["route"],
+  "additionalProperties": false
+}

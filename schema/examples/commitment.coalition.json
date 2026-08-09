@@ -1,0 +1,33 @@
+{
+  "type": "commitment",
+  "commitment_id": "33333333-3333-4333-8333-333333333333",
+  "offer_ref": "22222222-2222-4222-8222-222222222222",
+  "demand_ref": "44444444-4444-4444-8444-444444444444",
+  "demand_kind": "coalition",
+  "participants": {
+    "supply_agent": "did:web:driver-app.example.com:agent:driver-123",
+    "demand_agents": [
+      "did:web:rider-app.example.com:agent:rider-a",
+      "did:web:rider-app.example.com:agent:rider-b",
+      "did:web:rider-app.example.com:agent:rider-c"
+    ]
+  },
+  "terms_snapshot": {
+    "total_price": { "amount_minor": 125000, "currency": "INR" },
+    "departure": "2026-07-18T15:45:00+05:30",
+    "detail": {
+      "drops": [
+        { "intent_ref": "11111111-1111-4111-8111-111111111111", "stop": "Satara" },
+        { "intent_ref": "55555555-5555-4555-8555-555555555555", "stop": "Vadgaon" },
+        { "intent_ref": "66666666-6666-4666-8666-666666666666", "stop": "Ichalkaranji" }
+      ]
+    }
+  },
+  "escrow": {
+    "state": "held",
+    "amount": { "amount_minor": 125000, "currency": "INR" }
+  },
+  "status": "confirmed",
+  "mandate_refs": ["aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"],
+  "created_at": "2026-07-17T15:35:00+05:30"
+}

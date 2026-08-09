@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/commitment.schema.json",
+  "title": "Commitment (v0)",
+  "description": "Formed the moment a supply capacity is matched-and-agreed against demand (docs/spec/01 §P7). Formation moves funds into escrow (§P8). Immutable terms + signatures make it the audit record disputes are adjudicated on.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "commitment" },
+    "commitment_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "offer_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "demand_ref": {
+      "description": "The Intent OR Coalition this commitment satisfies.",
+      "oneOf": [
+        { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" }
+      ]
+    },
+    "demand_kind": { "enum": ["intent", "coalition"] },
+    "participants": {
+      "type": "object",
+      "properties": {
+        "supply_agent": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+        "demand_agents": {
+          "type": "array",
+          "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+          "minItems": 1,
+          "description": "More than one when the demand side is a coalition."
+        }
+      },
+      "required": ["supply_agent", "demand_agents"],
+      "additionalProperties": false
+    },
+    "terms_snapshot": {
+      "type": "object",
+      "description": "Final agreed terms, immutable once recorded.",
+      "properties": {
+        "total_price": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+        "departure": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+        "detail": { "type": "object", "description": "Category-specific agreed detail (e.g. per-member drop points)." }
+      },
+      "required": ["total_price"],
+      "additionalProperties": false
+    },
+    "escrow": {
+      "type": "object",
+      "description": "Escrow state (§P8). Money is held, never moved, until Fulfillment records consumer approval AND provider approval AND platform verification. Any failure routes to 'disputed'.",
+      "properties": {
+        "state": { "enum": ["authorized", "held", "released", "refunded", "disputed"] },
+        "amount": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" }
+      },
+      "required": ["state", "amount"],
+      "additionalProperties": false
+    },
+    "status": { "enum": ["held", "confirmed", "expired", "reneged"] },
+    "mandate_refs": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+      "description": "The mandate(s) authorizing this commitment. Runtime MUST verify total_price is within every referenced mandate's budget_ceiling before forming the commitment."
+    },
+    "created_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "signatures": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/signature" },
+      "description": "Both sides sign the terms_snapshot, making it non-repudiable."
+    }
+  },
+  "required": ["type", "commitment_id", "offer_ref", "demand_ref", "demand_kind", "participants", "terms_snapshot", "escrow", "status", "mandate_refs", "created_at"],
+  "additionalProperties": false
+}

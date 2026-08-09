@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/messages/envelope.schema.json",
+  "title": "Wire envelope (v0)",
+  "description": "Every message between agents is a strictly-typed envelope. There is NO free-text instruction field: this is the structural prompt-injection defense (docs/spec/02 Layer D, docs/technical-deep-dive/06 §3). A payload is data to be validated against its schema, never an instruction to be executed.",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Enables capability negotiation across versions (docs/platform-architecture/01 §2)."
+    },
+    "message_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "message_type": {
+      "enum": ["intent", "offer", "counter_offer", "decision", "coalition_proposal", "coalition_offer", "commitment", "fulfillment", "settlement"],
+      "description": "Discriminator selecting how 'payload' is validated."
+    },
+    "sender": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "sent_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "payload": {
+      "type": "object",
+      "description": "The typed body, validated against the schema named by message_type. Kept as structured fields only — no natural-language command channel."
+    },
+    "signature": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/signature" }
+  },
+  "required": ["protocol_version", "message_id", "message_type", "sender", "sent_at", "payload"],
+  "additionalProperties": false
+}

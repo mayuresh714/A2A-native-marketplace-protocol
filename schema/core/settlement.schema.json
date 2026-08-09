@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/settlement.schema.json",
+  "title": "Settlement (v0)",
+  "description": "The terminal money-movement record, produced only after Fulfillment's three gates all pass (docs/spec/01 §P8, Stage 9). Records the escrow release, the thin protocol fee, and the net to the provider.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "settlement" },
+    "settlement_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "commitment_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "fulfillment_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "gross": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+    "protocol_fee": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money",
+      "description": "Thin, interchange-style fee borne by the supply side (docs/business-strategy/06 §6). Target <=2% at maturity (docs/technical-deep-dive/07)."
+    },
+    "net_to_provider": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+    "released_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+  },
+  "required": ["type", "settlement_id", "commitment_ref", "fulfillment_ref", "gross", "protocol_fee", "net_to_provider", "released_at"],
+  "additionalProperties": false
+}

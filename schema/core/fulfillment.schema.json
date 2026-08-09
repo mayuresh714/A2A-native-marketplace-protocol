@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/fulfillment.schema.json",
+  "title": "Fulfillment (v0)",
+  "description": "The execution-and-verification record. Per docs/spec/01 §P8, escrow releases ONLY when all three of consumer_approval, provider_approval, and platform_verification are present and positive. This object carries those three gates plus the evidence.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "fulfillment" },
+    "fulfillment_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "commitment_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "consumer_approval": {
+      "type": "object",
+      "description": "Gate 1 (§P8).",
+      "properties": {
+        "approved": { "type": "boolean" },
+        "at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+      },
+      "required": ["approved"],
+      "additionalProperties": false
+    },
+    "provider_approval": {
+      "type": "object",
+      "description": "Gate 2 (§P8).",
+      "properties": {
+        "approved": { "type": "boolean" },
+        "at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+      },
+      "required": ["approved"],
+      "additionalProperties": false
+    },
+    "platform_verification": {
+      "type": "object",
+      "description": "Gate 3 (§P8): independent verification against evidence/trace logs, NOT taking either party's word for it.",
+      "properties": {
+        "verified": { "type": "boolean" },
+        "method": { "type": "string", "examples": ["gps_drop_confirm", "signed_job_complete", "delivery_scan"] }
+      },
+      "required": ["verified", "method"],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Category-specific evidence (intercity: drop-confirmation, GPS trace). Validated against the category's evidence schema.",
+      "default": {}
+    },
+    "outcome": { "enum": ["completed", "partial", "failed", "disputed"] }
+  },
+  "required": ["type", "fulfillment_id", "commitment_ref", "consumer_approval", "provider_approval", "platform_verification", "outcome"],
+  "additionalProperties": false
+}

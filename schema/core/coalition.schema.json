@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/coalition.schema.json",
+  "title": "Coalition (v0, demand-only)",
+  "description": "An ephemeral grouping of demand-stance agents that pool into one joint offer when solo matching fails (docs/spec/01 §P1 + §P5). v0 hard-restricts stance to 'demand': provider-side coalitions are disabled by default (anti-cartel) and are a governance-gated exception not built in v0.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "coalition" },
+    "coalition_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "stance": {
+      "const": "demand",
+      "description": "v0 permits ONLY demand-side coalitions (§P1). This is a const, not an enum, so a supply coalition fails validation by construction."
+    },
+    "member_intent_refs": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+      "minItems": 2,
+      "description": "The member Intents being pooled."
+    },
+    "formation_mode": {
+      "const": "ephemeral",
+      "description": "v0 coalitions dissolve after one negotiation. Standing coalitions are out of v0 scope."
+    },
+    "aggregation": {
+      "type": "object",
+      "description": "How member constraints combine into one joint proposal (docs/technical-deep-dive/02 §4).",
+      "properties": {
+        "proposed_departure": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp", "description": "Point of maximum overlap across members' time windows (computed, not negotiated)." },
+        "price_rule": { "enum": ["additive", "proportional_split"] }
+      },
+      "required": ["proposed_departure", "price_rule"],
+      "additionalProperties": false
+    },
+    "compatibility_result": {
+      "enum": ["cleared", "failed"],
+      "description": "Whether members clear the category compatibility check (e.g. comfort prefs). Rejection reasons are NOT exposed to the rejected party (docs/design.md §6)."
+    },
+    "status": {
+      "enum": ["forming", "negotiating", "proposed", "accepted", "rejected", "expired", "dissolved"]
+    }
+  },
+  "required": ["type", "coalition_id", "stance", "member_intent_refs", "formation_mode", "aggregation", "status"],
+  "additionalProperties": false
+}

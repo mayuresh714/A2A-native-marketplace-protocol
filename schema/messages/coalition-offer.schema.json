@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/messages/coalition-offer.schema.json",
+  "title": "CoalitionOffer (v0)",
+  "description": "A formed demand coalition's single joint offer to a supply agent — the whole point of pooling: turn several individually-unviable requests into one a provider will accept (docs/design.md §5).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "coalition_offer" },
+    "coalition_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "offer_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid", "description": "The supply Offer being jointly taken." },
+    "members": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "intent_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+          "detail": { "type": "object", "description": "Per-member category detail (intercity: this member's drop waypoint)." }
+        },
+        "required": ["intent_ref"],
+        "additionalProperties": false
+      }
+    },
+    "proposed_departure": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "total_price": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" }
+  },
+  "required": ["type", "coalition_id", "offer_ref", "members", "proposed_departure", "total_price"],
+  "additionalProperties": false
+}

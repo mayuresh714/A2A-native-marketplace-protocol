@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/messages/coalition-proposal.schema.json",
+  "title": "CoalitionProposal (v0)",
+  "description": "Demand-agent to demand-agent, via the registry-hosted coalition session (docs/technical-deep-dive/02 §2). Proposes pooling into one joint demand after solo matching failed (§P5). Demand-side only (§P1).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "coalition_proposal" },
+    "coalition_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "proposer_intent_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "candidate_intent_refs": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+      "minItems": 1
+    },
+    "proposed_departure": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+  },
+  "required": ["type", "coalition_id", "proposer_intent_ref", "candidate_intent_refs", "proposed_departure"],
+  "additionalProperties": false
+}

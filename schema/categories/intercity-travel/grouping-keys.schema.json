@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/categories/intercity-travel/grouping-keys.schema.json",
+  "title": "intercity_travel grouping keys (v0)",
+  "description": "The coarse, shared keys that partition intercity travel demand and supply into the same matchable pool (docs/spec/01 §P3). Deliberately only three, all coarse — nothing rider- or driver-specific.",
+  "type": "object",
+  "properties": {
+    "source_region": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/region" },
+    "destination_region": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/region" },
+    "start_time_bucket": {
+      "type": "string",
+      "description": "A coarse time bucket, not a precise instant — e.g. an ISO interval label. Precise timing is a constraint/preference, not a grouping key.",
+      "examples": ["2026-07-18T15:00/17:00+05:30"]
+    }
+  },
+  "required": ["source_region", "destination_region", "start_time_bucket"],
+  "additionalProperties": false
+}

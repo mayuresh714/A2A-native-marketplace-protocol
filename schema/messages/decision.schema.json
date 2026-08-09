@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/messages/decision.schema.json",
+  "title": "Decision (v0)",
+  "description": "Accept or decline, terminating a negotiation branch. An 'accept' on a valid, unexpired offer is what triggers Commitment formation and escrow (docs/spec/01 §P7). A decline reason, if given, is a coarse category code — never free text about the counterparty (docs/design.md §6: rejection reasons stay private).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "decision" },
+    "decision_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "in_reply_to": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "decision": { "enum": ["accept", "decline"] },
+    "decline_reason": {
+      "enum": ["price", "timing", "capacity", "compatibility", "expired", "other"],
+      "description": "Coarse code only. Compatibility declines must not reveal the specific reason to the other party."
+    }
+  },
+  "required": ["type", "decision_id", "in_reply_to", "decision"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "decision": { "const": "decline" } } },
+      "then": { "required": ["decline_reason"] }
+    }
+  ]
+}

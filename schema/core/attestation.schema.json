@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/attestation.schema.json",
+  "title": "Attestation (v0)",
+  "description": "A verifiable, signed claim about an Agent/Principal — identity, license, or a rating. Ratings are anti-manipulation by construction (docs/spec/02 Layer D): a rating attestation MUST reference a settled commitment, so no transaction means no rating.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "attestation" },
+    "attestation_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "subject_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "claim_type": {
+      "type": "string",
+      "description": "e.g. 'verified_identity', 'driver_license', 'rating'.",
+      "examples": ["verified_identity", "driver_license", "rating"]
+    },
+    "claim": {
+      "type": "object",
+      "description": "The claim payload. For claim_type='rating', MUST include settled_commitment_ref (structural anti-manipulation, §P4).",
+      "properties": {
+        "settled_commitment_ref": {
+          "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid",
+          "description": "Required when claim_type is 'rating'. A rating cannot exist without a settled transaction."
+        }
+      }
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Who verified/produced this. Must be a recognized issuer under the governance trust framework (docs/spec/02 Layer C) for it to carry weight."
+    },
+    "issued_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "expiry": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp",
+      "description": "Attestations lapse and need re-verification (relevant where periodic re-check is required)."
+    },
+    "signature": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/signature" }
+  },
+  "required": ["type", "attestation_id", "subject_ref", "claim_type", "issuer", "issued_at", "signature"],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "claim_type": { "const": "rating" } } },
+      "then": { "properties": { "claim": { "required": ["settled_commitment_ref"] } }, "required": ["claim"] }
+    }
+  ]
+}

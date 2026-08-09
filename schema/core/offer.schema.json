@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/offer.schema.json",
+  "title": "Offer (v0)",
+  "description": "A supply-stance posting or response. Same three-tier discipline as Intent: grouping_keys place it in a partition; capacity/price are the terms; category_ext carries the category shape (e.g. the route waypoints for intercity travel).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "offer" },
+    "offer_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "issuer_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "category_ref": { "type": "string" },
+    "grouping_keys": {
+      "type": "object",
+      "description": "Same coarse grouping keys as Intent (§P3), so supply and demand land in the same partition to be matched.",
+      "minProperties": 1
+    },
+    "capacity": {
+      "type": "object",
+      "properties": {
+        "unit": { "type": "string", "description": "e.g. 'seat'." },
+        "quantity": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["unit", "quantity"],
+      "additionalProperties": false
+    },
+    "price_terms": {
+      "type": "object",
+      "properties": {
+        "negotiable": { "type": "boolean" },
+        "current": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money", "description": "Per-unit price. Providers set price independently; they may NOT coordinate (§P1)." }
+      },
+      "required": ["negotiable", "current"],
+      "additionalProperties": false
+    },
+    "category_ext": {
+      "type": "object",
+      "description": "Category-specific fields (intercity: ordered route waypoints). Validated against the category's offer-ext schema.",
+      "default": {}
+    },
+    "hold_expires_at": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp",
+      "description": "Perishability boundary. A hold on this capacity is void after this instant (prevents double-booking, docs/technical-deep-dive/01 §3)."
+    },
+    "attestation_refs": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" }
+    },
+    "created_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+  },
+  "required": ["type", "offer_id", "issuer_ref", "category_ref", "grouping_keys", "capacity", "price_terms", "hold_expires_at", "created_at"],
+  "additionalProperties": false
+}

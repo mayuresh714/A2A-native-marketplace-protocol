@@ -1,0 +1,29 @@
+{
+  "type": "intent",
+  "intent_id": "11111111-1111-4111-8111-111111111111",
+  "issuer_ref": "did:web:rider-app.example.com:agent:rider-a",
+  "category_ref": "intercity_travel",
+  "grouping_keys": {
+    "source_region": "Pune",
+    "destination_region": "Kolhapur",
+    "start_time_bucket": "2026-07-18T15:00/17:00+05:30"
+  },
+  "constraints": {
+    "time_window": {
+      "earliest": "2026-07-18T14:30:00+05:30",
+      "latest": "2026-07-18T17:00:00+05:30"
+    },
+    "budget_ceiling": { "amount_minor": 40000, "currency": "INR" },
+    "quantity": 1
+  },
+  "preferences": {
+    "exact_destination": { "lat": 17.69, "lng": 74.0 },
+    "detour_tolerance_km": 10,
+    "comfort_prefs": ["female_co_passengers_only"],
+    "provider_min_rating": 4.0
+  },
+  "coalition_opt_in": true,
+  "mandate_ref": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "created_at": "2026-07-17T09:15:00+05:30",
+  "expiry": "2026-07-18T14:00:00+05:30"
+}

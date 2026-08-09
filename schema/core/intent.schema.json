@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/intent.schema.json",
+  "title": "Intent (v0)",
+  "description": "A demand-stance request. Structured as the three-tier model from docs/spec/01 §P3: grouping_keys (coarse, shared, used to partition) vs constraints (hard filters) vs preferences (soft, ranked, and trigger collaboration on failure). Nothing participant-specific may appear in grouping_keys.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "intent" },
+    "intent_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "issuer_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "category_ref": { "type": "string", "description": "v0: 'intercity_travel'." },
+
+    "grouping_keys": {
+      "type": "object",
+      "description": "TIER 1 (docs/spec/01 §P3). Coarse, shared, category-defined dimensions that place this request into a matchable partition. MUST NOT contain anything participant-specific. Shape is category-defined; validated against the category's grouping-key schema.",
+      "minProperties": 1
+    },
+
+    "constraints": {
+      "type": "object",
+      "description": "TIER 2. Hard must-satisfy requirements, applied as filters WITHIN a partition. Not grouping keys.",
+      "properties": {
+        "time_window": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timeWindow" },
+        "budget_ceiling": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+        "quantity": { "type": "integer", "minimum": 1, "description": "e.g. seats needed." }
+      },
+      "required": ["time_window", "budget_ceiling", "quantity"],
+      "additionalProperties": true
+    },
+
+    "preferences": {
+      "type": "object",
+      "description": "TIER 3. Soft, individual desires. Used only for RANKING (by the operator, §P10) and to trigger collaboration on failure (§P5). Never a grouping key, never a hard filter. Category-specific shape validated against the category's intent-ext schema.",
+      "default": {}
+    },
+
+    "coalition_opt_in": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this intent may join a demand-side Coalition on match failure (§P1 — demand only; §P5 — on failure)."
+    },
+    "mandate_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "created_at": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp",
+      "description": "Enqueue time. FIFO ordering within a partition is by this field (§P6)."
+    },
+    "expiry": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+  },
+  "required": ["type", "intent_id", "issuer_ref", "category_ref", "grouping_keys", "constraints", "mandate_ref", "created_at", "expiry"],
+  "additionalProperties": false
+}

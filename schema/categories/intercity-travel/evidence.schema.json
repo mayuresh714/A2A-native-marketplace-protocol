@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/categories/intercity-travel/evidence.schema.json",
+  "title": "intercity_travel Fulfillment evidence (v0)",
+  "description": "Validated against Fulfillment.evidence. The trace logs the platform verifies against before releasing escrow (docs/spec/01 §P8, Gate 3). In v0 (simulation) these are synthetic.",
+  "type": "object",
+  "properties": {
+    "pickup_confirmed_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "dropoffs": {
+      "type": "array",
+      "description": "One per commitment member (a coalition has several).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "intent_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+          "stop": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/region" },
+          "confirmed_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+          "location": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/geoPoint" }
+        },
+        "required": ["intent_ref", "stop", "confirmed_at"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["pickup_confirmed_at", "dropoffs"],
+  "additionalProperties": false
+}
