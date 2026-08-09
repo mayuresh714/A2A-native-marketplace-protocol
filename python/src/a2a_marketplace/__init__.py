@@ -15,12 +15,15 @@ from . import adapters, models, ports
 from .categories import IntercityTravelCategory
 
 
-def dev_engine(fee_bps: int = 200, clock=None) -> MarketplaceEngine:
+def dev_engine(fee_bps: int = 200, clock=None, proposal_ttl_seconds: int = 900) -> MarketplaceEngine:
     """A fully-wired engine using in-memory reference adapters and the
     intercity category. For development, tests, and simulation only."""
     from .adapters import (
+        AllowAllFraudFilter,
         AllowAllIdentity,
+        AlwaysEscalateResolver,
         InMemoryStorage,
+        LoggingNotifier,
         PriceAscRanking,
         SimEscrow,
         SystemClock,
@@ -34,7 +37,11 @@ def dev_engine(fee_bps: int = 200, clock=None) -> MarketplaceEngine:
         escrow=SimEscrow(),
         identity=AllowAllIdentity(),
         categories={cat.id: cat},
+        fraud_filter=AllowAllFraudFilter(),
+        notifier=LoggingNotifier(),
+        dispute_resolver=AlwaysEscalateResolver(),
         fee_bps=fee_bps,
+        proposal_ttl_seconds=proposal_ttl_seconds,
     )
 
 

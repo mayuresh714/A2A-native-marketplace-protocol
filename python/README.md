@@ -21,11 +21,18 @@ The library is deliberately split along the layer model from
 
 - **`engine.py` — the neutral mechanism (Layer A).** Runs the machine and
   holds *no policy*: it never ranks, never sets price, and doesn't know what
-  a "ride" is. Partition → FIFO queue → solo-first match → consumer coalition
-  on failure → commitment + escrow → dual-approval + evidence → settlement.
+  a "ride" is, and it never decides a dispute's outcome. Per-request fraud
+  filter → demand/supply queues → solo-first match → consumer coalition on
+  failure (only after that intent's own wait timer expires) → a **staged
+  `MatchProposal`** (notify both sides) → both sides approve + funds
+  captured into platform custody → `Commitment` ("agreement, not final") →
+  fulfillment window (variable duration) → dual-approval + evidence →
+  settlement, or a dispute that freezes escrow until the operator's
+  `DisputeResolver` resolves it.
 - **`ports.py` — the pluggable interfaces (what an operator owns).**
   `Storage`, `RankingPolicy` (Layer B — ranking is *yours*, not the
-  protocol's), `EscrowProvider`, `IdentityVerifier`, `Category`, `Clock`.
+  protocol's), `EscrowProvider`, `IdentityVerifier`, `RequestFraudFilter`,
+  `Notifier`, `DisputeResolver` (Layer C policy), `Category`, `Clock`.
 - **`adapters.py` — reference in-memory implementations** so it runs out of
   the box. Replace each with your own infra in production.
 - **`categories/intercity.py` — a reference vertical.** The only file that
@@ -47,31 +54,38 @@ from a2a_marketplace.models import partition_of
 
 engine = dev_engine()        # in-memory adapters + intercity category
 # ... submit offers and intents (see examples/demo_intercity.py) ...
-commitments = engine.run_partition("intercity_travel", partition_of(corridor))
+proposals = engine.run_partition("intercity_travel", partition_of(corridor))
+# a proposal auto-finalizes into a Commitment if BOTH sides' mandates/offers
+# allow auto-commit; otherwise call engine.approve_proposal(proposal, side=...)
+commitment = next(iter(engine.storage.commitments.values()))
 fulfillment, settlement = engine.fulfill(
-    commitments[0], consumer_approved=True, provider_approved=True, evidence=evidence)
+    commitment, consumer_approved=True, provider_approved=True, evidence=evidence)
 ```
 
 Run the full worked scenario (three riders pooling into one Pune–Kolhapur
-ride, then escrowed settlement):
+ride via a staged proposal requiring explicit approval, escrowed settlement,
+and a second example showing a mid-window dispute freezing escrow):
 
 ```bash
 python examples/demo_intercity.py
 pytest -q
 ```
 
-## How the ten principles show up in code
+## How the principles show up in code
 
 | Principle (`../docs/spec/01`) | In the code |
 |---|---|
 | P1 — consumers pool, providers don't | `Coalition.__post_init__` raises on `stance != DEMAND` |
 | P3 — grouping keys / constraints / preferences | three separate fields on `Intent`; partition keyed only on grouping keys |
+| P4 — fraud prevention | identity gate on `register_agent`; `RequestFraudFilter` on every `submit_intent`/`submit_offer`; mandate ceiling enforced *in code*, checked against each coalition member's own share, never the group total |
 | P5 — collaborate on failure | `engine.run_partition` tries solo first, coalition only if solo fails |
-| P6 — FIFO within partition | `Storage.queued_intents` returns intents sorted by `created_at` |
-| P7 — transaction on match | a match forms a `Commitment` |
-| P8 — money only on dual approval + evidence | `engine.fulfill` releases escrow only if all three gates pass |
-| P4 — fraud prevention | identity gate on `register_agent`; mandate ceiling enforced *in code* |
+| P6 — FIFO within partition | `Storage.demand_queue`/`supply_queue` return items sorted by `created_at` |
+| P7 — transaction on match | an approved `MatchProposal` forms a `Commitment` |
+| P8 — money only on dual approval + evidence | `engine.fulfill` releases escrow only if all three gates pass, and only if no dispute is open |
 | P10 — ranking is the operator's | the engine never ranks; it calls the injected `RankingPolicy` |
+| P11 — staged proposal, dual approval, platform custody | `run_partition` returns `MatchProposal`s, not `Commitment`s; `engine.approve_proposal(...)` captures funds and forms the `Commitment` only once both sides approve |
+| P12 — time-boxed escalation | `Intent.solo_wait_seconds` / `collaboration_eligible_at()` gate when a coalition attempt is even tried |
+| P13 — variable duration + mid-window disputes | `Commitment.fulfillment_window`; `engine.raise_dispute(...)` unconditionally freezes escrow; `engine.resolve_dispute(...)` delegates to the injected `DisputeResolver` (Layer C) |
 
 ## Extending it (the whole point)
 

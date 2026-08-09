@@ -39,6 +39,12 @@
       "default": false,
       "description": "Whether this intent may join a demand-side Coalition on match failure (§P1 — demand only; §P5 — on failure)."
     },
+    "solo_wait_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "How long this intent waits for a SOLO match before it's eligible to escalate to the collaboration/negotiation queue (§P12). 0 = escalate on the first failed solo attempt."
+    },
     "mandate_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
     "created_at": {
       "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp",

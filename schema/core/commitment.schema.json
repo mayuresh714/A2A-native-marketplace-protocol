@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://a2a-marketplace.dev/schema/v0/core/commitment.schema.json",
   "title": "Commitment (v0)",
-  "description": "Formed the moment a supply capacity is matched-and-agreed against demand (docs/spec/01 §P7). Formation moves funds into escrow (§P8). Immutable terms + signatures make it the audit record disputes are adjudicated on.",
+  "description": "Formed only after a match_proposal (docs/spec/01 §P11) has been approved by BOTH sides and funds captured. This is an AGREEMENT, explicitly not the final step — completion is the separate P8 dual-approval-plus-evidence gate. Immutable terms + signatures make it the audit record disputes (docs/spec/05) are adjudicated on.",
   "type": "object",
   "properties": {
     "type": { "const": "commitment" },
@@ -42,15 +42,26 @@
     },
     "escrow": {
       "type": "object",
-      "description": "Escrow state (§P8). Money is held, never moved, until Fulfillment records consumer approval AND provider approval AND platform verification. Any failure routes to 'disputed'.",
+      "description": "Escrow state (§P8), held in PLATFORM CUSTODY — not a third-party clearing exchange (§P11). Money is held, never moved, until Fulfillment records consumer approval AND provider approval AND platform verification, OR a dispute (docs/spec/05) is resolved by the operator's DisputeResolver. Raising a dispute unconditionally freezes this to 'disputed' — no payout occurs until resolution.",
       "properties": {
         "state": { "enum": ["authorized", "held", "released", "refunded", "disputed"] },
-        "amount": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" }
+        "amount": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money", "description": "Consumer payment held." },
+        "provider_stake": {
+          "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money",
+          "description": "Optional additional deposit captured from the provider at the same moment (§P11: \"each party putting money\")."
+        }
       },
       "required": ["state", "amount"],
       "additionalProperties": false
     },
-    "status": { "enum": ["held", "confirmed", "expired", "reneged"] },
+    "status": {
+      "enum": ["held", "confirmed", "expired", "reneged"],
+      "description": "'confirmed' means agreement reached + funds captured — NOT completion (§P11). Completion is tracked on the Fulfillment record, not here."
+    },
+    "fulfillment_window": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timeWindow",
+      "description": "The service's own duration — a minute to multiple days (docs/spec/05). Omitted for categories that treat fulfillment as effectively instantaneous. A dispute may be raised by either party at any point inside this window, not only at its end."
+    },
     "mandate_refs": {
       "type": "array",
       "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },

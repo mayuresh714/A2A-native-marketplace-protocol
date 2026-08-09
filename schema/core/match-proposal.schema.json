@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/match-proposal.schema.json",
+  "title": "MatchProposal (v0)",
+  "description": "A staged match (docs/spec/01 §P11): created the instant demand and supply are found compatible, but NOT binding. Both parties are notified; funds are captured and a Commitment forms only once both sides approve.",
+  "type": "object",
+  "properties": {
+    "type": { "const": "match_proposal" },
+    "proposal_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "offer_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "demand_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid", "description": "The Intent or Coalition being proposed against the offer." },
+    "demand_kind": { "enum": ["intent", "coalition"] },
+    "demand_agents": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+      "minItems": 1
+    },
+    "supply_agent": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/did" },
+    "total_price": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" },
+    "quantity": { "type": "integer", "minimum": 1 },
+    "mandate_refs": {
+      "type": "array",
+      "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" }
+    },
+    "consumer_approved": {
+      "type": ["boolean", "null"],
+      "description": "null = awaiting explicit approval. true when auto-approved under the mandate's auto_commit_within_scope autonomy, or after an explicit approve."
+    },
+    "provider_approved": {
+      "type": ["boolean", "null"],
+      "description": "true by default the instant the offer is posted (posting IS blanket approval), unless the offer sets requires_explicit_approval."
+    },
+    "status": { "enum": ["proposed", "approved", "expired", "declined"] },
+    "created_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "respond_by": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp",
+      "description": "Proposal TTL. Past this instant an unapproved proposal expires and reserved capacity is released."
+    },
+    "detail": { "type": "object", "description": "Category-specific detail (e.g. per-member drop points)." }
+  },
+  "required": ["type", "proposal_id", "offer_ref", "demand_ref", "demand_kind", "demand_agents", "supply_agent", "total_price", "quantity", "status", "created_at", "respond_by"],
+  "additionalProperties": false
+}

@@ -4,8 +4,8 @@ This is the whole extensibility story (docs/platform-architecture/01). The
 engine (Layer A) depends only on these ``typing.Protocol`` interfaces, never
 on concrete infrastructure. An operator swaps in their own storage (Postgres,
 Redis, Kafka), their own ranking (P10 — ranking is *theirs*, never the
-protocol's), their own escrow/payment rail, and their own identity/KYC —
-without forking the core.
+protocol's), their own escrow/payment rail, their own identity/KYC, and their
+own dispute-resolution policy (Layer C) — without forking the core.
 
 Reference in-memory implementations live in ``adapters.py`` so the library
 also runs out of the box.
@@ -18,8 +18,10 @@ from typing import Any, Iterable, Protocol, runtime_checkable
 from .models import (
     Agent,
     Commitment,
+    Dispute,
     Fulfillment,
     Intent,
+    MatchProposal,
     Money,
     Offer,
     Settlement,
@@ -37,7 +39,8 @@ class Clock(Protocol):
 
 @runtime_checkable
 class Storage(Protocol):
-    """Persistence + the per-partition FIFO queues.
+    """Persistence + the per-partition, per-stance FIFO queues (P11: demand
+    and supply are separate queues, both keyed by the same partition).
 
     The reference implementation is in-memory. A real deployment implements
     this over its own database and its own sharded queue; the engine does not
@@ -47,16 +50,19 @@ class Storage(Protocol):
     def add_intent(self, intent: Intent) -> None: ...
     def add_offer(self, offer: Offer) -> None: ...
     def get_offer(self, offer_id: str) -> Offer | None: ...
+    def get_intent(self, intent_id: str) -> Intent | None: ...
 
-    def queued_intents(self, category_ref: str, partition: Partition) -> list[Intent]:
+    def demand_queue(self, category_ref: str, partition: Partition) -> list[Intent]:
         """Unmatched intents in the partition, in FIFO order (P6)."""
 
-    def offers_in_partition(self, category_ref: str, partition: Partition) -> list[Offer]:
+    def supply_queue(self, category_ref: str, partition: Partition) -> list[Offer]:
         """Offers in the partition with remaining capacity."""
 
+    def save_proposal(self, proposal: MatchProposal) -> None: ...
     def save_commitment(self, commitment: Commitment) -> None: ...
     def save_fulfillment(self, fulfillment: Fulfillment) -> None: ...
     def save_settlement(self, settlement: Settlement) -> None: ...
+    def save_dispute(self, dispute: Dispute) -> None: ...
 
 
 @runtime_checkable
@@ -70,14 +76,26 @@ class RankingPolicy(Protocol):
 
 @runtime_checkable
 class EscrowProvider(Protocol):
-    """Money movement, behind the P8 gates. A real deployment implements this
-    over a payment rail (UPI, cards, AP2); the sim implementation just tracks
-    balances. Money is only ever released via :meth:`release`, which the
-    engine calls only after dual approval + platform verification."""
+    """Money movement, always in PLATFORM CUSTODY — the operator holds funds,
+    not a third-party clearing exchange (P11). A real deployment implements
+    this over a payment rail (UPI, cards, AP2); the sim implementation just
+    tracks balances.
+
+    ``hold`` captures the consumer's payment and (if the offer specifies one)
+    the provider's stake, atomically with Commitment formation — this is what
+    "each party putting money in" means concretely.
+
+    ``payout`` is the single, general money-movement primitive: an arbitrary
+    distribution of the held total across agent ids, summing to what was
+    held. Normal settlement is one kind of payout (net to provider, fee to
+    the platform); a dispute resolution's split is another (docs/spec/05
+    §5) — same mechanism, different distribution, decided by whoever calls
+    it (the engine for normal settlement, the DisputeResolver's outcome for
+    a dispute).
+    """
 
     def hold(self, commitment: Commitment) -> bool: ...
-    def release(self, commitment: Commitment, net_to_provider: Money, fee: Money) -> None: ...
-    def refund(self, commitment: Commitment) -> None: ...
+    def payout(self, commitment: Commitment, payouts: dict[str, Money]) -> None: ...
 
 
 @runtime_checkable
@@ -86,6 +104,37 @@ class IdentityVerifier(Protocol):
     verification here; the reference implementation allows all (dev only)."""
 
     def verify(self, agent: Agent) -> bool: ...
+
+
+@runtime_checkable
+class RequestFraudFilter(Protocol):
+    """Per-REQUEST fraud/governance filtering (P11), distinct from the
+    one-time IdentityVerifier onboarding gate: this runs on every Intent and
+    Offer before it's admitted to a queue, catching an already-verified
+    agent that starts spawning fraudulent requests after onboarding."""
+
+    def allow_intent(self, intent: Intent) -> bool: ...
+    def allow_offer(self, offer: Offer) -> bool: ...
+
+
+@runtime_checkable
+class Notifier(Protocol):
+    """Notification hook (P11: "notify parties"). A real deployment wires
+    this to push/webhook/SMS; the reference implementation just logs."""
+
+    def notify(self, agent_id: str, event: str, payload: dict[str, Any]) -> None: ...
+
+
+@runtime_checkable
+class DisputeResolver(Protocol):
+    """Layer C / operator policy (docs/spec/05). The protocol guarantees the
+    dispute STATE MACHINE (freeze on raise, audit trail, closed outcome
+    vocabulary); this port is where an operator's actual adjudication rules
+    plug in. The reference implementation does not decide anything — it
+    always escalates, which is a legitimate (if minimal) policy."""
+
+    def resolve(self, dispute: Dispute, commitment: Commitment) -> Dispute:
+        """Return the dispute updated with .status, .outcome, .payouts set."""
 
 
 @runtime_checkable

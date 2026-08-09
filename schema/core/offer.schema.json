@@ -45,6 +45,15 @@
       "type": "array",
       "items": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" }
     },
+    "requires_explicit_approval": {
+      "type": "boolean",
+      "default": false,
+      "description": "If false (default), posting this offer IS the provider's blanket approval for any matching demand — a staged match_proposal auto-approves on the provider side. A higher-stakes category can set true to require per-match confirmation (docs/spec/01 §P11)."
+    },
+    "provider_stake": {
+      "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money",
+      "description": "Optional per-match deposit the provider also puts up (§P11: \"each party putting money\"). Category-defined; most categories omit this."
+    },
     "created_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
   },
   "required": ["type", "offer_id", "issuer_ref", "category_ref", "grouping_keys", "capacity", "price_terms", "hold_expires_at", "created_at"],

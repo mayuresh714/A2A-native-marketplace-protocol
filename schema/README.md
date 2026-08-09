@@ -22,8 +22,10 @@ schema/
     intent.schema.json            demand request — three-tier: grouping_keys / constraints / preferences
     offer.schema.json             supply posting — route as waypoints in category_ext
     coalition.schema.json         demand-ONLY pooling (stance is a const, not enum)
-    commitment.schema.json        formed transaction + escrow state
+    match-proposal.schema.json    a STAGED match, not yet binding — awaits dual approval + funds
+    commitment.schema.json        the AGREEMENT (not final) once both sides approve + escrow held
     fulfillment.schema.json       the three release gates: consumer + provider + platform
+    dispute.schema.json           raisable mid-window; unconditional freeze; closed outcome set
     settlement.schema.json        terminal money movement, thin fee
     attestation.schema.json       signed claims; ratings must reference a settled commitment
   messages/                       wire traffic
@@ -40,18 +42,21 @@ schema/
   examples/                       valid instances of the Pune–Kolhapur scenario
 ```
 
-## How the schemas encode the ten principles
+## How the schemas encode the principles
 
 | Principle (see `../docs/spec/01`) | Where it lives in the schema |
 |---|---|
 | P1 — consumers pool, providers don't | `coalition.schema.json`: `stance` is `{"const": "demand"}` — a supply coalition fails validation |
 | P3 — grouping keys ≠ constraints ≠ preferences | `intent.schema.json`: three separate blocks, with grouping keys constrained to the coarse category schema |
+| P4 — fraud prevention | `envelope` has no free-text (injection); `attestation` ratings require a settled commitment |
 | P5 — collaborate on failure | `coalition-proposal` / `coalition-offer` messages, triggered only after solo match fails |
 | P6 — FIFO within partition | `intent.created_at` / `offer.created_at` are the ordering key; `counter_offer.round` bounds negotiation |
-| P7 — transaction on match | an `accept` `decision` on a valid offer → `commitment` |
+| P7 — transaction on match | a `match_proposal` reaching `status: approved` → `commitment` |
 | P8 — money only on dual approval + evidence | `commitment.escrow.state` + `fulfillment`'s three gates + `settlement` |
-| P4 — fraud prevention | `envelope` has no free-text (injection); `attestation` ratings require a settled commitment |
 | P10 — ranking is the operator's | absent by design — no ranking/score field is in the protocol; it's operator policy |
+| P11 — staged proposal, dual approval, platform-custody escrow | `match-proposal.schema.json`'s `consumer_approved`/`provider_approved` gate before any `commitment.schema.json` exists; `commitment.status: confirmed` explicitly means "agreement, not final" |
+| P12 — time-boxed escalation to collaboration | `intent.schema.json`'s `solo_wait_seconds` gates when a coalition attempt is even eligible |
+| P13 — variable duration + mid-window disputes | `commitment.schema.json`'s `fulfillment_window`; `dispute.schema.json`'s unconditional freeze and closed `outcome` vocabulary (see `../docs/spec/05`) |
 
 ## Validation
 

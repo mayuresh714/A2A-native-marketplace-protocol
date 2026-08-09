@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://a2a-marketplace.dev/schema/v0/core/dispute.schema.json",
+  "title": "Dispute (v0)",
+  "description": "Raisable by either party at ANY point in a Commitment's fulfillment window, not only at the end (docs/spec/05). Raising a dispute unconditionally freezes escrow. The protocol defines this state machine and the closed outcome vocabulary; the RESOLUTION POLICY (who's at fault, how much) is operator/governance territory (docs/spec/02 Layer C).",
+  "type": "object",
+  "properties": {
+    "type": { "const": "dispute" },
+    "dispute_id": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "commitment_ref": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/uuid" },
+    "raised_by": { "enum": ["consumer", "provider"] },
+    "reason_code": { "type": "string", "examples": ["timing", "quality", "no_show", "damage", "scope_change"] },
+    "raised_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" },
+    "status": { "enum": ["open", "under_review", "resolved"] },
+    "outcome": {
+      "enum": ["full_release", "full_refund", "partial", "escalated"],
+      "description": "The closed vocabulary of terminal outcomes (docs/spec/05 §5). No operator policy may produce an outcome outside this set."
+    },
+    "payouts": {
+      "type": "object",
+      "description": "agent_id (or \"platform\") -> Money, summing to no more than the held escrow. Populated only once status is 'resolved' with a payout-bearing outcome (full_release/full_refund/partial); empty while 'escalated'.",
+      "additionalProperties": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/money" }
+    },
+    "resolved_at": { "$ref": "https://a2a-marketplace.dev/schema/v0/common.schema.json#/$defs/timestamp" }
+  },
+  "required": ["type", "dispute_id", "commitment_ref", "raised_by", "reason_code", "raised_at", "status"],
+  "additionalProperties": false
+}

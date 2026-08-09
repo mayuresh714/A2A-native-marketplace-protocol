@@ -58,6 +58,31 @@ class FulfillmentOutcome(str, Enum):
     DISPUTED = "disputed"
 
 
+class ProposalStatus(str, Enum):
+    """Lifecycle of a staged match, before it becomes a Commitment (P11)."""
+
+    PROPOSED = "proposed"
+    APPROVED = "approved"  # both sides approved, funds captured -> Commitment formed
+    EXPIRED = "expired"
+    DECLINED = "declined"
+
+
+class DisputeStatus(str, Enum):
+    OPEN = "open"
+    UNDER_REVIEW = "under_review"
+    RESOLVED = "resolved"
+
+
+class DisputeOutcome(str, Enum):
+    """The closed vocabulary of terminal outcomes (docs/spec/05 §5). No
+    operator policy may produce an outcome outside this set."""
+
+    FULL_RELEASE = "full_release"
+    FULL_REFUND = "full_refund"
+    PARTIAL = "partial"
+    ESCALATED = "escalated"
+
+
 class PriceRule(str, Enum):
     ADDITIVE = "additive"
     PROPORTIONAL_SPLIT = "proportional_split"
